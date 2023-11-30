@@ -48,6 +48,8 @@ app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log("Received login request for email:", email);
+
     const query = "SELECT * FROM users WHERE email = ?";
     connection.query(query, [email], async (err, results) => {
       if (err) {
@@ -56,6 +58,7 @@ app.post("/login", async (req, res) => {
       }
 
       if (results.length === 0) {
+        console.log("User not found for email:", email);
         return res.status(404).json({ error: "User not found" });
       }
 
@@ -63,9 +66,11 @@ app.post("/login", async (req, res) => {
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
+        console.log("Invalid password for email:", email);
         return res.status(401).json({ error: "Invalid password" });
       }
 
+      console.log("Login successful for email:", email);
       res.status(200).json({ message: "Login successful" });
     });
   } catch (error) {
