@@ -19,7 +19,7 @@ export default function Signup() {
       }
 
       if (validatePassword()) {
-        const response = await axios.post("http://localhost:5000/register", {
+        const response = await axios.post("http://localhost:5000/signup", {
           name,
           email,
           password,

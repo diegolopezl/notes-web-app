@@ -1,10 +1,10 @@
-// Login.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import InputField from "./InputField";
+import { setAccessToken, refreshAccessToken } from "../auth/tokenServices";
 
-export default function Login({ auth, setAuth }) {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,14 +23,31 @@ export default function Login({ auth, setAuth }) {
       });
 
       console.log(response.data);
-      setAuth(true);
-      navigate("/notes");
-      localStorage.setItem("auth", JSON.stringify(true));
 
-      // Add any other logic you need after successful login
+      if (response.data && response.data.token) {
+        // Login successful
+        setAccessToken(response.data.token);
+
+        // Save refresh token if provided
+        if (response.data.refreshToken) {
+          localStorage.setItem("refreshToken", response.data.refreshToken);
+        }
+
+        // Refresh access token
+        await refreshAccessToken();
+
+        // Navigate to the /notes route on successful login
+        navigate("/notes");
+      } else {
+        // Handle unexpected response
+        setError("Internal server error");
+      }
     } catch (error) {
-      console.error("Login Error:", error.response.data);
-      setError(error.response.data.error || "Internal server error");
+      console.error(
+        "Login Error:",
+        error.response?.data || "Internal server error"
+      );
+      setError(error.response?.data?.error || "Internal server error");
     }
   };
 
