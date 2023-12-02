@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const cors = require("cors");
 const jwt = require("jsonwebtoken"); // Added for JWT
 const mysql = require("mysql");
+require("dotenv").config();
 const port = 5000;
 
 const app = express();
@@ -24,6 +25,27 @@ connection.connect((err) => {
 
   console.log("Connection successful");
 });
+
+const getUserIdFromRefreshToken = (refreshToken) => {
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    return decoded.userId;
+  } catch (error) {
+    console.error("Error decoding refresh token:", error.message);
+    return null;
+  }
+};
+
+const generateRefreshToken = (userId) => {
+  // Implement your logic to generate a new refresh token
+  const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d", // Set the expiration time for the refresh token
+  });
+
+  // Save the refresh token to your database or wherever you store it
+
+  return refreshToken;
+};
 
 app.post("/signup", async (req, res) => {
   try {
@@ -84,7 +106,7 @@ app.post("/login", async (req, res) => {
       }
 
       // Create and send JWT
-      const token = jwt.sign({ userId: user.user_id }, "yourSecretKey", {
+      const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
 
@@ -103,9 +125,15 @@ app.post("/login", async (req, res) => {
           }
 
           console.log("Login successful for email:", email);
+          const refreshToken = generateRefreshToken(user.user_id);
+          res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            // ... (other options like secure, sameSite, etc.)
+          });
           res.cookie("token", token, { httpOnly: true }).json({
             message: "Login successful",
             token,
+            refreshToken,
           });
         }
       );
@@ -127,7 +155,7 @@ app.post("/logout", async (req, res) => {
     }
 
     // Verify the token and extract the user ID
-    const decoded = jwt.verify(token, "yourSecretKey");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.userId;
 
     if (!userId) {
@@ -157,33 +185,50 @@ app.post("/logout", async (req, res) => {
   }
 });
 
-app.post("/refresh-token", async (req, res) => {
+app.post("/refresh-token", (req, res) => {
   try {
     const refreshToken = req.body.refreshToken;
 
-    // Validate refresh token
     if (!refreshToken) {
       return res.status(401).json({ error: "Invalid refresh token" });
     }
 
-    // TODO: Validate the refresh token (you may want to store and check against a database)
-
-    // Assuming the refresh token is valid, issue a new access token
+    // Verify the refresh token
     const userId = getUserIdFromRefreshToken(refreshToken);
 
     if (!userId) {
       return res.status(401).json({ error: "Invalid user ID" });
     }
 
-    const newAccessToken = jwt.sign({ userId }, "yourSecretKey", {
-      expiresIn: "1h", // Set the expiration time for the new access token
+    // Assuming the refresh token is valid, issue a new access token and refresh token
+    const newAccessToken = jwt.sign({ userId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
 
-    // You can also issue a new refresh token if needed
-    // const newRefreshToken = generateRefreshToken(userId);
+    // Update the session_token in the database
+    const updateSessionQuery =
+      "UPDATE users SET session_token = ? WHERE user_id = ?";
+    connection.query(
+      updateSessionQuery,
+      [newAccessToken, userId],
+      (updateError, updateResults) => {
+        if (updateError) {
+          console.error("Database Update Error: ", updateError);
+          return res.status(500).json({ error: "Internal server error" });
+        }
 
-    // Return the new access token (and optionally new refresh token)
-    res.status(200).json({ accessToken: newAccessToken });
+        console.log("Session token updated for user:", userId);
+
+        // const newRefreshToken = generateRefreshToken(userId);
+        console.log("New Access:" + newAccessToken);
+        // console.log("New Refresh: " + newRefreshToken);
+
+        res.status(200).json({
+          accessToken: newAccessToken,
+          // refreshToken: newRefreshToken,
+        });
+      }
+    );
   } catch (error) {
     console.error("Token refresh error:", error);
     res.status(500).json({ error: "Internal server error" });

@@ -1,11 +1,9 @@
-// Logout.jsx
-
 import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getAccessToken } from "./tokenServices";
+import { getAccessToken, clearRefreshInterval } from "../auth/tokenServices";
 
-const Logout = () => {
+export default function Logout() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -17,15 +15,17 @@ const Logout = () => {
         return;
       }
 
+      // Server-side logout
       await axios.post("http://localhost:5000/logout", null, {
         headers: {
           Authorization: token,
         },
       });
 
-      localStorage.removeItem("token"); // Remove the access token from localStorage
-      localStorage.removeItem("refreshToken"); // Remove the refresh token from localStorage
-
+      // Clear tokens from localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      clearRefreshInterval();
       navigate("/signin");
     } catch (error) {
       console.error(
@@ -46,6 +46,4 @@ const Logout = () => {
       </button>
     </div>
   );
-};
-
-export default Logout;
+}

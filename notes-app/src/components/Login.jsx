@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  setAccessToken,
+  refreshAccessToken,
+  setRefreshInterval,
+  clearRefreshInterval,
+} from "../auth/tokenServices";
 import axios from "axios";
 import InputField from "./InputField";
-import { setAccessToken, refreshAccessToken } from "../auth/tokenServices";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -22,24 +27,29 @@ export default function Login() {
         password,
       });
 
-      console.log(response.data);
-
       if (response.data && response.data.token) {
-        // Login successful
-        setAccessToken(response.data.token);
+        const accessToken = response.data.token;
+        const refreshToken = response.data.refreshToken;
+        console.log(response.data);
 
-        // Save refresh token if provided
-        if (response.data.refreshToken) {
-          localStorage.setItem("refreshToken", response.data.refreshToken);
-        }
+        // Store tokens in localStorage
+        setAccessToken(accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
 
-        // Refresh access token
-        await refreshAccessToken();
+        const refreshInterval = 59 * 60 * 1000;
+        const refreshAccessTokenFn = async () => {
+          console.log("Refreshing access token...", new Date());
+          const newAccessToken = await refreshAccessToken(refreshToken);
+          setAccessToken(newAccessToken);
+        };
 
-        // Navigate to the /notes route on successful login
+        // Schedule the first token refresh
+        setRefreshInterval(refreshAccessTokenFn, refreshInterval);
+
+        // console.log("Login function called");
+
         navigate("/notes");
       } else {
-        // Handle unexpected response
         setError("Internal server error");
       }
     } catch (error) {

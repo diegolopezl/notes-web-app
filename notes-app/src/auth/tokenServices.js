@@ -1,44 +1,39 @@
 import axios from "axios";
-const TOKEN_KEY = "token";
+
+let refreshTimeoutId;
+
+const setRefreshInterval = (callback, interval) => {
+  refreshTimeoutId = setInterval(callback, interval);
+};
+
+const clearRefreshInterval = () => {
+  if (refreshTimeoutId) {
+    clearInterval(refreshTimeoutId);
+  }
+};
 
 export const setAccessToken = (token) => {
-  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem("token", token);
 };
 
 export const getAccessToken = () => {
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem("token");
 };
 
-export const getRefreshToken = () => {
-  return localStorage.getItem("refreshToken");
-};
-
-export const setRefreshToken = (refreshToken) => {
-  localStorage.setItem("refreshToken", refreshToken);
-};
-
-export const refreshAccessToken = async () => {
+const refreshAccessToken = async (refreshToken) => {
   try {
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    if (!refreshToken) {
-      console.log("No refresh token provided.");
-      return null;
-    }
-
-    const response = await axios.post("http://localhost:5000/refresh-token", {
-      refreshToken,
-    });
+    const response = await axios.post(
+      "http://localhost:5000/refresh-token",
+      { refreshToken },
+      { withCredentials: true } // Make sure to include this for cookies to work
+    );
 
     const newAccessToken = response.data.accessToken;
-
-    // Update the stored access token with the new one
-    localStorage.setItem(TOKEN_KEY, newAccessToken);
-
     return newAccessToken;
   } catch (error) {
     console.error("Token refresh error:", error);
-    // Handle the error as needed
-    return null;
+    throw error;
   }
 };
+
+export { setRefreshInterval, clearRefreshInterval, refreshAccessToken };
