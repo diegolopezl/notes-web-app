@@ -1,17 +1,5 @@
 import axios from "axios";
 
-let refreshTimeoutId;
-
-const setRefreshInterval = (callback, interval) => {
-  refreshTimeoutId = setInterval(callback, interval);
-};
-
-const clearRefreshInterval = () => {
-  if (refreshTimeoutId) {
-    clearInterval(refreshTimeoutId);
-  }
-};
-
 export const setAccessToken = (token) => {
   localStorage.setItem("token", token);
 };
@@ -33,6 +21,18 @@ const refreshAccessToken = async (refreshToken) => {
   } catch (error) {
     console.error("Token refresh error:", error);
     throw error;
+  }
+};
+
+let refreshTimeoutId;
+
+const setRefreshInterval = (callback, interval) => {
+  refreshTimeoutId = setInterval(callback, interval);
+};
+
+const clearRefreshInterval = () => {
+  if (refreshTimeoutId) {
+    clearInterval(refreshTimeoutId);
   }
 };
 

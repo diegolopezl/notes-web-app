@@ -38,12 +38,7 @@ export default function Logout() {
 
   return (
     <div>
-      <button
-        style={{ height: "100px", width: "100px" }}
-        onClick={handleLogout}
-      >
-        Logout
-      </button>
+      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }

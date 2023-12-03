@@ -100,3 +100,52 @@ form > p {
   color: #ae0000;
   font-size: 0.8rem;
 }
+
+.dashboard {
+  display: grid;
+  width: 100vw;
+  grid-template: 100vh / 80px 400px auto;
+}
+
+.nav-sidebar {
+  background-color: white;
+  display: grid;
+  grid-template-rows: 80px 1fr 150px;
+}
+
+.dashboard-icon {
+  padding: 20px;
+}
+
+.page-icon {
+  height: 40px;
+  width: 40px;
+}
+.nav-links,
+.settings-help {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.nav-button {
+  height: 45px;
+  width: 45px;
+  border-radius: 15px;
+  background-color: white;
+  color: rgb(70, 70, 70);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-button:hover {
+  background-color: #e6e6e6;
+  cursor: pointer;
+}
+.nav-icon {
+  font-size: 1.75rem;
+}

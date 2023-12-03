@@ -1,0 +1,131 @@
+.textEditor {
+  display: grid;
+  grid-template-rows: 60px calc(100vh - 120px) 60px;
+  height: 100vh;
+}
+
+.textEditor div:nth-child(2) {
+  height: 100%;
+}
+
+.menuBar {
+  height: 60px;
+  background-color: white;
+  border-bottom: 1px solid grey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.menuBar button {
+  font-size: 1rem;
+  height: 40px;
+  width: 40px;
+  padding: 5px;
+  outline: none;
+  border: none;
+  background-color: white;
+  color: rgb(70, 70, 70);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  border-radius: 10px;
+}
+
+.menuBar button:hover {
+  background-color: #e6e6e6;
+}
+
+button.is-active {
+  background: rgb(228, 228, 228);
+  color: black;
+}
+
+/* TitTap Editor Design */
+.ProseMirror {
+  padding: 25px 30px;
+  background: white;
+  width: 100%; /* Set your desired fixed width as a fallback */
+  height: 100%;
+  height: inherit;
+  word-break: break-word;
+  overflow: auto;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror > * + * {
+  margin-top: 0.75em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding: 0 1rem;
+  list-style: revert;
+}
+
+.ProseMirror li {
+  display: list-item;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+  line-height: 1.1;
+}
+
+.ProseMirror u {
+  text-decoration: underline;
+}
+
+.ProseMirror s {
+  text-decoration: line-through;
+}
+
+.ProseMirror ul {
+  list-style-type: disc !important;
+}
+
+ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+ul[data-type="taskList"] li {
+  display: flex;
+}
+
+ul[data-type="taskList"] li > label {
+  margin-right: 0.5rem;
+}
+
+ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal !important;
+}
+
+.ProseMirror input[type="checkbox"] {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 10px;
+}
+
+.character-count {
+  display: flex;
+  height: 60px;
+  width: 100%;
+  background-color: white;
+  color: #868e96;
+  align-items: center;
+  justify-content: right;
+  padding: 1.5rem;
+}
