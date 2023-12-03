@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken, clearRefreshInterval } from "../auth/tokenServices";
+import { RiLogoutBoxRLine } from "react-icons/ri";
 
 export default function Logout() {
   const navigate = useNavigate();
@@ -38,7 +39,9 @@ export default function Logout() {
 
   return (
     <div>
-      <button onClick={handleLogout}>Logout</button>
+      <button className="nav-button" onClick={handleLogout}>
+        <RiLogoutBoxRLine className="nav-icon" />
+      </button>
     </div>
   );
 }

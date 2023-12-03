@@ -36,7 +36,7 @@ export default function Login() {
         setAccessToken(accessToken);
         localStorage.setItem("refreshToken", refreshToken);
 
-        const refreshInterval = 59 * 60 * 1000;
+        const refreshInterval = 30 * 60 * 1000;
         const refreshAccessTokenFn = async () => {
           console.log("Refreshing access token...", new Date());
           const newAccessToken = await refreshAccessToken(refreshToken);

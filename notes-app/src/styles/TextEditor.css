@@ -2,6 +2,7 @@
   display: grid;
   grid-template-rows: 60px calc(100vh - 120px) 60px;
   height: 100vh;
+  border-left: 1px solid rgba(70, 70, 70, 0.2);
 }
 
 .textEditor div:nth-child(2) {
@@ -11,7 +12,7 @@
 .menuBar {
   height: 60px;
   background-color: white;
-  border-bottom: 1px solid grey;
+  border-bottom: 1px solid rgba(70, 70, 70, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,7 +59,11 @@ button.is-active {
 }
 
 .ProseMirror > * + * {
-  margin-top: 0.75em;
+  margin-top: 1rem;
+}
+
+.ProseMirror p {
+  color: #4a4a4a;
 }
 
 .ProseMirror ul,

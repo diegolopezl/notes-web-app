@@ -14,6 +14,7 @@ export default function App() {
         <Route path="/signin" element={<Login />} />
         <Route element={<PrivateRoute />}>
           <Route path="/notes" element={<Dashboard />} />
+          <Route path="/recycle-bin" element={<Dashboard />} />
         </Route>
       </Routes>
     </Router>

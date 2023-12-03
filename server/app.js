@@ -4,12 +4,14 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken"); // Added for JWT
 const mysql = require("mysql");
 require("dotenv").config();
+const crypto = require("crypto");
 const port = 5000;
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
+// console.log(crypto.randomBytes(32).toString("hex"));
 const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -39,13 +41,30 @@ const getUserIdFromRefreshToken = (refreshToken) => {
 const generateRefreshToken = (userId) => {
   // Implement your logic to generate a new refresh token
   const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "7d", // Set the expiration time for the refresh token
+    expiresIn: "1h", // Set the expiration time for the refresh token
   });
 
   // Save the refresh token to your database or wherever you store it
 
   return refreshToken;
 };
+
+// Derive a key from the passphrase
+const key = crypto.scryptSync(process.env.SECRET_PASS, "salt", 32);
+
+function encrypt(text) {
+  const cipher = crypto.createCipher("aes-256-cbc", key);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
+}
+
+function decrypt(encryptedText) {
+  const decipher = crypto.createDecipher("aes-256-cbc", key);
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
 
 app.post("/signup", async (req, res) => {
   try {
@@ -231,6 +250,46 @@ app.post("/refresh-token", (req, res) => {
     );
   } catch (error) {
     console.error("Token refresh error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/create-note", (req, res) => {
+  try {
+    const token = req.header("Authorization");
+
+    if (!token) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+
+    // Verify the token and extract the user ID
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid user ID" });
+    }
+
+    const title = encrypt(req.body.title);
+    const content = encrypt(req.body.content);
+    const date = req.body.date_created;
+
+    const query =
+      "INSERT INTO notes (user_id, title, content, date_created, date_edited) VALUES (?, ?, ?, ?, ?)";
+    connection.query(
+      query,
+      [userId, title, content, date, date],
+      (err, results) => {
+        if (err) {
+          console.error("Database Error: ", err);
+          return res.status(500).json({ error: "Internal server error" });
+        }
+
+        res.status(201).json({ message: "Note added succesfully" });
+      }
+    );
+  } catch (error) {
+    console.error("Create Note Error: ", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
