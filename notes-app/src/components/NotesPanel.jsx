@@ -1,15 +1,15 @@
 import axios from "axios";
 import { FaPlus } from "react-icons/fa6";
 import NotesList from "./NotesList";
-import FolderList from "./FolderList";
+// import FolderList from "./FolderList";
 import SearchBar from "./SearchBar";
-export default function NotesPanel() {
+export default function NotesPanel({ setActive }) {
   return (
     <section className="notes-panel">
       <SearchBar />
       <div className="notes-section">
         <ListTitle title="MY NOTES" addAction={console.log("add note")} />
-        <NotesList />
+        <NotesList setActive={setActive} />
       </div>
       {/* <div className="folders-section">
         <ListTitle title="FOLDERS" addAction={console.log("add folder")} />

@@ -3,7 +3,7 @@ import NoteCard from "./NoteCard";
 import axios from "axios";
 import { getAccessToken } from "../auth/tokenServices";
 
-export default function NotesList() {
+export default function NotesList({ setActive }) {
   const [notes, setNotes] = useState([]);
   useEffect(() => {
     // Fetch notes data when the component mounts
@@ -28,6 +28,7 @@ export default function NotesList() {
 
   const handleCardClick = (clickedNote) => {
     console.log("Clicked Note:", clickedNote);
+    setActive(clickedNote);
   };
 
   return (
