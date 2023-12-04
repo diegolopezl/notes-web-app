@@ -7,14 +7,14 @@ export default function NotesPanel() {
   return (
     <section className="notes-panel">
       <SearchBar />
-      <div className="notes-list">
+      <div className="notes-section">
         <ListTitle title="MY NOTES" addAction={console.log("add note")} />
         <NotesList />
       </div>
-      <div className="folders-list">
+      {/* <div className="folders-section">
         <ListTitle title="FOLDERS" addAction={console.log("add folder")} />
         <FolderList />
-      </div>
+      </div> */}
     </section>
   );
 }

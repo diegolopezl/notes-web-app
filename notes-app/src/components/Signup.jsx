@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import InputField from "./InputField";
+import PasswordInput from "./PasswordInput";
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -9,6 +10,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [emptyFieldError, setEmptyFieldError] = useState("");
+
   const navigate = useNavigate();
 
   const handleRegister = async () => {
@@ -93,13 +95,12 @@ export default function Signup() {
                 border: emptyFieldError && !email && "1px solid rgb(250, 0, 0)",
               }}
             />
-            <InputField
+            <PasswordInput
               label="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••••••"
-              // Add a style to indicate an error
               style={{
                 border:
                   (emptyFieldError && !password) || passwordError
@@ -107,11 +108,6 @@ export default function Signup() {
                     : "",
               }}
             />
-            {passwordError && (
-              <div className="invalid-password">
-                <p>{passwordError}</p>
-              </div>
-            )}
           </div>
 
           <button className="submit-btn" type="button" onClick={handleRegister}>

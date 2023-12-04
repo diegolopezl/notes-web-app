@@ -42,4 +42,20 @@ function getTitle(editor) {
   return firstElementHTML;
 }
 
-export { getContent, getTitle };
+function dateFormat(date) {
+  const formattedDate = new Date(date).toLocaleDateString("en-US");
+  return formattedDate;
+}
+
+function removeHtmlTags(input) {
+  return input.replace(/<[^>]*>/g, "");
+}
+
+function truncateString(text, maxLength) {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return text.substring(0, maxLength) + "...";
+}
+
+export { getContent, getTitle, dateFormat, removeHtmlTags, truncateString };

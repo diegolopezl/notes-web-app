@@ -294,6 +294,56 @@ app.post("/create-note", (req, res) => {
   }
 });
 
+// Inside your fetchNotesFromDatabase function or wherever you handle database queries
+const fetchNotesFromDatabase = (userId) => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "SELECT notes_id, title, content, date_created FROM notes WHERE user_id = ?";
+
+    connection.query(query, [userId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        // Decrypt the titles and content before resolving
+        const decryptedResults = results.map((note) => ({
+          id: note.notes_id,
+          title: decrypt(note.title), // Assuming title is encrypted
+          content: decrypt(note.content), // Assuming content is encrypted
+          date: note.date_created,
+        }));
+
+        resolve(decryptedResults);
+      }
+    });
+  });
+};
+
+app.get("/get-notes", async (req, res) => {
+  try {
+    const token = req.header("Authorization");
+
+    if (!token) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+
+    // Verify the token and extract the user ID
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid user ID" });
+    }
+
+    // Fetch notes from the database based on the user ID
+    const notes = await fetchNotesFromDatabase(userId);
+
+    res.status(200).json({ notes });
+  } catch (error) {
+    console.error("Get Notes Error: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

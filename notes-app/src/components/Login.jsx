@@ -4,11 +4,10 @@ import {
   setAccessToken,
   refreshAccessToken,
   setRefreshInterval,
-  clearRefreshInterval,
 } from "../auth/tokenServices";
 import axios from "axios";
 import InputField from "./InputField";
-
+import PasswordInput from "./PasswordInput";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -86,7 +85,7 @@ export default function Login() {
                 border: error && "1px solid rgb(250, 0, 0)",
               }}
             />
-            <InputField
+            <PasswordInput
               label="Password"
               type="password"
               value={password}

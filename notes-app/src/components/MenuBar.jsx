@@ -80,10 +80,10 @@ const MenuBar = ({ editor }) => {
         <FaStrikethrough />
       </button>
       <button
-        onClick={() => editor.chain().focus().toggleTaskList().run()}
-        className={editor.isActive("taskList") ? "is-active" : ""}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        className={editor.isActive("orderedList") ? "is-active" : ""}
       >
-        <FaListCheck />
+        <FaListOl />
       </button>
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -92,10 +92,10 @@ const MenuBar = ({ editor }) => {
         <FaListUl />
       </button>
       <button
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        className={editor.isActive("orderedList") ? "is-active" : ""}
+        onClick={() => editor.chain().focus().toggleTaskList().run()}
+        className={editor.isActive("taskList") ? "is-active" : ""}
       >
-        <FaListOl />
+        <FaListCheck />
       </button>
       <button onClick={() => handleSaveNote()}>
         <FaSave />
