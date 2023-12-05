@@ -9,8 +9,9 @@ import NotesPanel from "./NotesPanel";
 export default function Dashboard() {
   const [active, setActive] = useState([]);
   const [notes, setNotes] = useState([]);
+  // console.log(notes);
 
-  console.log(active);
+  // console.log(active);
   return (
     <section className="dashboard">
       <Navbar />

@@ -18,7 +18,7 @@ export default function NotesList({ search, setActive, notes, setNotes }) {
   }, []); // Empty dependency array ensures the effect runs once when the component mounts
 
   const handleCardClick = (clickedNote) => {
-    console.log("Clicked Note:", clickedNote);
+    // console.log("Clicked Note:", clickedNote);
     setActive(clickedNote);
     setSelectedNote(clickedNote);
   };
@@ -32,6 +32,7 @@ export default function NotesList({ search, setActive, notes, setNotes }) {
             (note.title.toLowerCase().includes(search.toLowerCase()) ||
               note.content.toLowerCase().includes(search.toLowerCase()))
         )
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
         .map((note) => (
           <NoteCard
             key={note.id}

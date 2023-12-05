@@ -429,7 +429,7 @@ app.delete("/delete-note", verifyToken, async (req, res) => {
     }
 
     const notesId = req.body.notes_id; // Change this line to use req.body
-    console.log(req.body);
+    // console.log(req.body);
 
     const query = "DELETE FROM notes WHERE user_id = ? AND notes_id = ?";
     connection.query(query, [userId, notesId], (err, results) => {
