@@ -14,7 +14,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
       if (!email || !password) {
         setError("Please enter valid credentials");
@@ -35,7 +36,7 @@ export default function Login() {
         setAccessToken(accessToken);
         localStorage.setItem("refreshToken", refreshToken);
 
-        const refreshInterval = 30 * 60 * 1000;
+        const refreshInterval = 5 * 60 * 1000;
         const refreshAccessTokenFn = async () => {
           console.log("Refreshing access token...", new Date());
           const newAccessToken = await refreshAccessToken(refreshToken);
@@ -102,7 +103,7 @@ export default function Login() {
               <p>{"Invalid user or password"}</p>
             </div>
           )}
-          <button className="submit-btn" type="button" onClick={handleLogin}>
+          <button className="submit-btn" type="submit" onClick={handleLogin}>
             Sign In
           </button>
         </form>

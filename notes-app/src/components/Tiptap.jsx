@@ -4,6 +4,7 @@ import "../styles/TextEditor.css";
 
 import { extensions, limit } from "./tiptapExtensions";
 import MenuBar from "./MenuBar";
+// import BubbleMenu from "./BubbleMenu";
 
 export default function Tiptap({ active }) {
   const [text, setText] = useState("");
@@ -23,13 +24,17 @@ export default function Tiptap({ active }) {
     }
   }, [text, editor]);
 
-  if (!editor) {
-    return null;
+  if (!active || active.length === 0 || !editor) {
+    return (
+      <div className="editor-placeholder">
+        <p>Choose a note to begin.</p>
+      </div>
+    ); // or return placeholder content
   }
 
   return (
     <div className="textEditor">
-      <MenuBar editor={editor} />
+      <MenuBar editor={editor} active={active} />
       <EditorContent editor={editor} />
       <div className="character-count">
         {editor.storage.characterCount.characters()}/{limit} characters

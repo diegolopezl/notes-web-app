@@ -24,12 +24,16 @@ export const extensions = [
   HardBreak.configure({
     keepMarks: false,
   }),
-  BubbleMenu,
+  BubbleMenu.configure({
+    element: document.querySelector(".menu"),
+  }),
   History,
   CharacterCount.configure({
     limit: limit,
   }),
-  Heading,
+  Heading.configure({
+    levels: [1, 2, 3],
+  }),
   Bold,
   Italic,
   Underline,

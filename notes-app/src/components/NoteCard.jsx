@@ -3,13 +3,16 @@
 import React from "react";
 import { dateFormat, removeHtmlTags, truncateString } from "./functions";
 
-export default function NoteCard({ note, onCardClick }) {
+export default function NoteCard({ note, onCardClick, isSelected }) {
   const handleClick = () => {
     onCardClick(note);
   };
 
   return (
-    <div className="note-card" onClick={handleClick}>
+    <div
+      className={`note-card ${isSelected ? "selected" : ""}`}
+      onClick={handleClick}
+    >
       <div className="note-card-title">
         <h4>{removeHtmlTags(note.title)}</h4>
       </div>

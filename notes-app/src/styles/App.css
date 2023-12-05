@@ -85,7 +85,7 @@ form > p {
 }
 
 .pass-input-container.focused {
-  outline: 2px solid rgb(0, 68, 255); /* Border color when focused */
+  outline: 2px solid rgb(0, 68, 255);
 }
 
 .pass-input-container input {
@@ -387,8 +387,9 @@ form > p {
 }
 .notes-list {
   display: grid;
+  align-items: start;
   /* justify-content: center; */
-  grid-template-rows: repeat(auto, 150px);
+  grid-template-rows: repeat(auto-fit, 150px);
   height: inherit;
   overflow-y: scroll;
   gap: 15px;
@@ -399,7 +400,7 @@ form > p {
 .folders-list {
   display: grid;
   /* justify-content: center; */
-  grid-template-rows: repeat(auto, 30px);
+  grid-template-rows: repeat(auto-fit, 30px);
   height: inherit;
   overflow-y: scroll;
   /* padding-bottom: 25px; */
@@ -422,6 +423,18 @@ form > p {
   display: grid;
   grid-template-rows: 30px 60px 30px;
   box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+  transition: all 0.075s ease-in;
+}
+
+.note-card:hover {
+  background-color: rgba(70, 70, 70, 0.15);
+  cursor: pointer;
+}
+
+.note-card.selected {
+  background-color: rgb(255, 240, 180);
+  /* color: white; */
+  /* border: 2px solid rgba(70, 70, 70, 0.5); */
 }
 
 .note-card-title {
@@ -431,9 +444,17 @@ form > p {
 
 .note-card-preview,
 .note-card-date {
-  color: rgba(46, 46, 46, 0.75);
   font-weight: 400;
   font-size: 0.88rem;
+}
+
+.note-card-preview {
+  color: rgba(46, 46, 46, 0.75);
+}
+
+.note-card-date {
+  color: rgba(46, 46, 46, 0.9);
+  font-weight: 500;
 }
 
 .note-card-preview {
@@ -448,9 +469,12 @@ form > p {
 }
 
 .page-header {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 2;
   display: grid;
   grid-template-columns: 200px minmax(200px, 1000px) 200px;
   align-items: center;
@@ -477,7 +501,7 @@ form > p {
   display: flex;
   align-items: center;
   justify-self: left;
-  background-color: rgb(0, 145, 255);
+  background-color: rgb(250, 200, 0);
   border-radius: 50px;
   width: auto;
   height: 40px;
@@ -487,7 +511,7 @@ form > p {
 }
 
 .try-button > button:hover {
-  background-color: rgb(1, 116, 204);
+  background-color: black;
 }
 
 .try-for-free {
@@ -498,12 +522,12 @@ form > p {
 .try-for-free > button {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
   justify-self: left;
   background-color: #000000;
   width: auto;
-  border-radius: 20px;
-  height: 40px;
+  border-radius: 30px;
+  height: 45px;
   padding: 0 25px;
   cursor: pointer;
   transform: scale(1.25);
@@ -512,12 +536,16 @@ form > p {
 }
 
 .try-for-free > button:hover {
-  background-color: #267af0;
+  background-color: rgb(250, 200, 0);
 }
 
 .try-for-free p,
 .try-button p {
   color: white;
+}
+
+.try-for-free p {
+  font-size: 0.88rem;
 }
 
 .try-icon {
@@ -544,7 +572,7 @@ form > p {
 }
 
 .hero-section > div > p {
-  opacity: 0.6;
+  color: rgba(70, 70, 70, 0.75);
 }
 
 .preview-section {

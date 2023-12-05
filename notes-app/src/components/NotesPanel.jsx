@@ -1,14 +1,29 @@
 import axios from "axios";
 import { FaPlus } from "react-icons/fa6";
 import NotesList from "./NotesList";
+import { useLocation } from "react-router-dom";
 // import FolderList from "./FolderList";
 import SearchBar from "./SearchBar";
 export default function NotesPanel({ setActive }) {
+  const location = useLocation();
+  const path = location.pathname;
+  const handleAddNote = () => {
+    setActive({ title: "<h1></h1>", content: "" });
+  };
   return (
     <section className="notes-panel">
       <SearchBar />
       <div className="notes-section">
-        <ListTitle title="MY NOTES" addAction={console.log("add note")} />
+        <ListTitle
+          title={`${
+            path === "/notes"
+              ? "MY NOTES"
+              : path === "/recycle-bin"
+              ? "RECYCLE BIN"
+              : ""
+          }`}
+          addAction={handleAddNote}
+        />
         <NotesList setActive={setActive} />
       </div>
       {/* <div className="folders-section">

@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
-const jwt = require("jsonwebtoken"); // Added for JWT
+const jwt = require("jsonwebtoken");
 const mysql = require("mysql");
 require("dotenv").config();
 const crypto = require("crypto");
@@ -11,8 +11,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// console.log(crypto.randomBytes(32).toString("hex"));
 const connection = mysql.createConnection({
+  connectionLimit: 10,
   host: "localhost",
   user: "root",
   password: "",
@@ -41,7 +41,7 @@ const getUserIdFromRefreshToken = (refreshToken) => {
 const generateRefreshToken = (userId) => {
   // Implement your logic to generate a new refresh token
   const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "1h", // Set the expiration time for the refresh token
+    expiresIn: "7d", // Set the expiration time for the refresh token
   });
 
   // Save the refresh token to your database or wherever you store it
@@ -65,6 +65,46 @@ function decrypt(encryptedText) {
   decrypted += decipher.final("utf8");
   return decrypted;
 }
+
+const fetchNotesFromDatabase = (userId) => {
+  return new Promise((resolve, reject) => {
+    const query =
+      "SELECT notes_id, title, content, state, date_edited FROM notes WHERE user_id = ?";
+
+    connection.query(query, [userId], (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        // Decrypt the titles and content before resolving
+        const decryptedResults = results.map((note) => ({
+          id: note.notes_id,
+          title: decrypt(note.title), // Assuming title is encrypted
+          content: decrypt(note.content), // Assuming content is encrypted
+          state: note.state,
+          date: note.date_edited,
+        }));
+
+        resolve(decryptedResults);
+      }
+    });
+  });
+};
+
+const verifyToken = (req, res, next) => {
+  const token = req.header("Authorization");
+  if (!token) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    console.error("Token verification error:", error);
+    return res.status(401).json({ error: "Invalid token" });
+  }
+};
 
 app.post("/signup", async (req, res) => {
   try {
@@ -93,8 +133,6 @@ app.post("/signup", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-// ... (other imports and setup)
 
 app.post("/login", async (req, res) => {
   try {
@@ -163,47 +201,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/logout", async (req, res) => {
-  try {
-    // Extract the token from the request headers
-    const token = req.header("Authorization");
-
-    if (!token) {
-      console.error("Token not provided");
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    // Verify the token and extract the user ID
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
-
-    if (!userId) {
-      console.error("Invalid user ID");
-      return res.status(401).json({ error: "Invalid user ID" });
-    }
-
-    // Clear the session_token in the database for the logged-in user
-    const clearSessionQuery =
-      "UPDATE users SET session_token = NULL WHERE user_id = ?";
-    connection.query(
-      clearSessionQuery,
-      [userId],
-      (updateError, updateResults) => {
-        if (updateError) {
-          console.error("Database Update Error: ", updateError);
-          return res.status(500).json({ error: "Internal server error" });
-        }
-
-        console.log("Logout successful");
-        res.clearCookie("token").json({ message: "Logout successful" });
-      }
-    );
-  } catch (error) {
-    console.error("Logout Error: ", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
 app.post("/refresh-token", (req, res) => {
   try {
     const refreshToken = req.body.refreshToken;
@@ -254,17 +251,58 @@ app.post("/refresh-token", (req, res) => {
   }
 });
 
-app.post("/create-note", (req, res) => {
+app.post("/logout", verifyToken, async (req, res) => {
   try {
-    const token = req.header("Authorization");
+    const userId = req.userId;
 
-    if (!token) {
-      return res.status(401).json({ error: "Invalid token" });
+    if (!userId) {
+      console.error("Invalid user ID");
+      return res.status(401).json({ error: "Invalid user ID" });
     }
 
-    // Verify the token and extract the user ID
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    // Clear the session_token in the database for the logged-in user
+    const clearSessionQuery =
+      "UPDATE users SET session_token = NULL WHERE user_id = ?";
+    connection.query(
+      clearSessionQuery,
+      [userId],
+      (updateError, updateResults) => {
+        if (updateError) {
+          console.error("Database Update Error: ", updateError);
+          return res.status(500).json({ error: "Internal server error" });
+        }
+
+        console.log("Logout successful");
+        res.clearCookie("token").json({ message: "Logout successful" });
+      }
+    );
+  } catch (error) {
+    console.error("Logout Error: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/get-note", verifyToken, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid user ID" });
+    }
+
+    // Fetch notes from the database based on the user ID
+    const notes = await fetchNotesFromDatabase(userId);
+
+    res.status(200).json({ notes });
+  } catch (error) {
+    console.error("Get Notes Error: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.put("/create-note", verifyToken, async (req, res) => {
+  try {
+    const userId = req.userId;
 
     if (!userId) {
       return res.status(401).json({ error: "Invalid user ID" });
@@ -294,52 +332,64 @@ app.post("/create-note", (req, res) => {
   }
 });
 
-// Inside your fetchNotesFromDatabase function or wherever you handle database queries
-const fetchNotesFromDatabase = (userId) => {
-  return new Promise((resolve, reject) => {
-    const query =
-      "SELECT notes_id, title, content, date_created FROM notes WHERE user_id = ?";
-
-    connection.query(query, [userId], (err, results) => {
-      if (err) {
-        reject(err);
-      } else {
-        // Decrypt the titles and content before resolving
-        const decryptedResults = results.map((note) => ({
-          id: note.notes_id,
-          title: decrypt(note.title), // Assuming title is encrypted
-          content: decrypt(note.content), // Assuming content is encrypted
-          date: note.date_created,
-        }));
-
-        resolve(decryptedResults);
-      }
-    });
-  });
-};
-
-app.get("/get-notes", async (req, res) => {
+app.put("/update-note", verifyToken, async (req, res) => {
   try {
-    const token = req.header("Authorization");
-
-    if (!token) {
-      return res.status(401).json({ error: "Invalid token" });
-    }
-
-    // Verify the token and extract the user ID
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    const userId = req.userId;
 
     if (!userId) {
       return res.status(401).json({ error: "Invalid user ID" });
     }
 
-    // Fetch notes from the database based on the user ID
-    const notes = await fetchNotesFromDatabase(userId);
+    const notesId = req.body.notes_id;
+    const title = encrypt(req.body.title);
+    const content = encrypt(req.body.content);
+    const date = req.body.date_edited;
 
-    res.status(200).json({ notes });
+    const query =
+      "UPDATE notes SET title = ?, content = ?, date_edited = ? WHERE user_id = ? AND notes_id = ?";
+    connection.query(
+      query,
+      [title, content, date, userId, notesId],
+      (err, results) => {
+        if (err) {
+          console.error("Database Error: ", err);
+          return res.status(500).json({ error: "Internal server error" });
+        }
+
+        res.status(201).json({ message: "Note updated succesfully" });
+      }
+    );
   } catch (error) {
-    console.error("Get Notes Error: ", error);
+    console.error("Update Note Error: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.put("/delete-note", verifyToken, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid user ID" });
+    }
+
+    const notesId = req.body.notes_id;
+    const date = req.body.date_deleted;
+
+    console.log(req.body);
+
+    const query =
+      "UPDATE notes SET state = ?, date_deleted = ? WHERE user_id = ? AND notes_id = ?";
+    connection.query(query, [true, date, userId, notesId], (err, results) => {
+      if (err) {
+        console.error("Database Error: ", err);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      res.status(201).json({ message: "Note updated succesfully" });
+    });
+  } catch (error) {
+    console.error("Update Note Error: ", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
