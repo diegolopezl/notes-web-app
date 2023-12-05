@@ -4,11 +4,13 @@ import "../styles/TextEditor.css";
 
 import { extensions, limit } from "./tiptapExtensions";
 import MenuBar from "./MenuBar";
-// import BubbleMenu from "./BubbleMenu";
+import { useLocation } from "react-router-dom";
 
-export default function Tiptap({ active }) {
+export default function Tiptap({ active, setActive, setNotes }) {
   const [text, setText] = useState("");
 
+  // const location = useLocation();
+  // const path = location.pathname;
   useEffect(() => {
     setText(`${active.title + active.content}`);
   }, [active]);
@@ -34,7 +36,12 @@ export default function Tiptap({ active }) {
 
   return (
     <div className="textEditor">
-      <MenuBar editor={editor} active={active} />
+      <MenuBar
+        editor={editor}
+        active={active}
+        setActive={setActive}
+        setNotes={setNotes}
+      />
       <EditorContent editor={editor} />
       <div className="character-count">
         {editor.storage.characterCount.characters()}/{limit} characters

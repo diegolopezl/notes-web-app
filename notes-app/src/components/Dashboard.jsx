@@ -8,12 +8,19 @@ import NotesPanel from "./NotesPanel";
 
 export default function Dashboard() {
   const [active, setActive] = useState([]);
+  const [notes, setNotes] = useState([]);
+
   console.log(active);
   return (
     <section className="dashboard">
       <Navbar />
-      <NotesPanel setActive={setActive} />
-      <Tiptap active={active} />
+      <NotesPanel setActive={setActive} notes={notes} setNotes={setNotes} />
+      <Tiptap
+        active={active}
+        setActive={setActive}
+        notes={notes}
+        setNotes={setNotes}
+      />
     </section>
   );
 }

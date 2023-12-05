@@ -108,6 +108,11 @@ export default function Signup() {
                     : "",
               }}
             />
+            {passwordError && (
+              <div className="invalid-password">
+                <p>{passwordError}</p>
+              </div>
+            )}
           </div>
 
           <button className="submit-btn" type="button" onClick={handleRegister}>

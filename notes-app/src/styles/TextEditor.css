@@ -17,14 +17,23 @@
   color: #4a4a4a;
 }
 
-.menu-bar {
+.menu-bar,
+.bin-bar {
   height: 60px;
   background-color: white;
   border-bottom: 1px solid rgba(70, 70, 70, 0.2);
+}
+
+.menu-bar {
   display: grid;
-  grid-template-columns: 10% 1fr 10%;
   gap: 40px;
+  grid-template-columns: 10% 1fr 10%;
   justify-content: center;
+}
+
+.bin-bar {
+  display: flex;
+  justify-content: space-between;
 }
 
 .tools,
@@ -44,6 +53,7 @@
 
 .delete-note-box {
   justify-self: right;
+  justify-content: left;
   margin-left: 25px;
 }
 
@@ -165,4 +175,17 @@ ul[data-type="taskList"] li > div {
   align-items: center;
   justify-content: right;
   padding: 1.5rem;
+}
+
+.restore-btn {
+  /* position: relative; */
+  width: auto !important;
+  display: flex !important;
+  gap: 10px;
+  align-items: center;
+  padding: 0 15px !important;
+}
+
+.restore-icon {
+  font-size: 1.5rem;
 }

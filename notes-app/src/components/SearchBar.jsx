@@ -1,7 +1,10 @@
 import React from "react";
 import { FiSearch } from "react-icons/fi";
 
-export default function SearchBar() {
+export default function SearchBar({ search, setSearch }) {
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
   return (
     <div className="search-box">
       <div className="search-bar">
@@ -9,9 +12,9 @@ export default function SearchBar() {
         <input
           className="search-input"
           type="search"
-          //   value={search}
+          value={search}
           placeholder="Search"
-          //   onChange={onChange}
+          onChange={handleSearchChange}
           maxLength="30"
         />
       </div>

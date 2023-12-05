@@ -1,3 +1,19 @@
+import axios from "axios";
+import { getAccessToken } from "../auth/tokenServices";
+const fetchNotes = async (setNotes) => {
+  try {
+    const token = getAccessToken();
+    const response = await axios.get("http://localhost:5000/get-note", {
+      headers: {
+        Authorization: token,
+      },
+    });
+    setNotes(response.data.notes);
+  } catch (error) {
+    console.error("Error fetching notes: ", error);
+  }
+};
+
 const parseHTMLContent = (htmlContent) => {
   // Use DOMParser to parse the HTML string
   const parser = new DOMParser();
@@ -58,4 +74,11 @@ function truncateString(text, maxLength) {
   return text.substring(0, maxLength) + "...";
 }
 
-export { getContent, getTitle, dateFormat, removeHtmlTags, truncateString };
+export {
+  fetchNotes,
+  getContent,
+  getTitle,
+  dateFormat,
+  removeHtmlTags,
+  truncateString,
+};
